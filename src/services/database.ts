@@ -1,4 +1,4 @@
-
+// database.ts
 import { PGlite } from '@electric-sql/pglite';
 
 export interface Patient {
@@ -25,11 +25,21 @@ class DatabaseService {
   private isInitialized = false;
 
   async init() {
+    // Ensure this runs only in the browser
+    if (typeof window === 'undefined') {
+      console.warn('PGlite only runs in the browser. Skipping DB init.');
+      return;
+    }
+
     if (this.isInitialized) return;
-    
+
     try {
+      // Create the database instance
       this.db = new PGlite('idb://patient-registration-db');
+
+      // Ensure the tables are created
       await this.createTables();
+
       this.isInitialized = true;
       console.log('Database initialized successfully');
     } catch (error) {
@@ -98,37 +108,37 @@ class DatabaseService {
 
   async getAllPatients(): Promise<Patient[]> {
     if (!this.db) throw new Error('Database not initialized');
-    
+
     const result = await this.db.query('SELECT * FROM patients ORDER BY created_at DESC');
     return result.rows as Patient[];
   }
 
   async getPatientById(id: number): Promise<Patient | null> {
     if (!this.db) throw new Error('Database not initialized');
-    
+
     const result = await this.db.query('SELECT * FROM patients WHERE id = $1', [id]);
     return result.rows[0] as Patient || null;
   }
 
   async searchPatients(searchTerm: string): Promise<Patient[]> {
     if (!this.db) throw new Error('Database not initialized');
-    
+
     const query = `
       SELECT * FROM patients 
       WHERE first_name ILIKE $1 
          OR last_name ILIKE $1 
          OR email ILIKE $1 
          OR phone ILIKE $1
-      ORDER BY created_at DESC
+      ORDER BY created_at DESC;
     `;
-    
+
     const result = await this.db.query(query, [`%${searchTerm}%`]);
     return result.rows as Patient[];
   }
 
   async executeRawQuery(query: string) {
     if (!this.db) throw new Error('Database not initialized');
-    
+
     try {
       const result = await this.db.query(query);
       return {

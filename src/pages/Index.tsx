@@ -61,7 +61,7 @@ const Index = () => {
         {activeTab === 'register' && (
           <div className="space-y-6">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome to MedFlow Registry</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome to MedBlock Registry</h2>
               <p className="text-lg text-gray-600">Streamlined patient registration and data management</p>
             </div>
             <PatientRegistrationForm onPatientAdded={handlePatientAdded} />
@@ -80,7 +80,7 @@ const Index = () => {
       <footer className="bg-white border-t border-gray-200 mt-12">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <div className="text-center text-gray-500 text-sm">
-            <p>MedFlow Registry - Secure Patient Data Management</p>
+            <p>MedBlock Registry - Secure Patient Data Management</p>
             <p className="mt-1">Data is stored locally using PGlite with IndexedDB persistence</p>
           </div>
         </div>
