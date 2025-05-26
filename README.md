@@ -77,9 +77,11 @@ worker: { format: 'es' },
   PGlite automatically supports synchronization when using the same idb:// URL, but we had to ensure a singleton DB instance across the app.
 
 - Folder Structure
-  src/
+ ```
+ src/
 ├── components/       # React components
 ├── db/               # PGlite integration logic
 ├── pages/            # Main app views
 ├── utils/            # Helpers
 └── main.tsx          # App entry
+```
