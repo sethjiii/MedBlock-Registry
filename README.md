@@ -4,7 +4,7 @@ A **frontend-only** patient registration app powered by **PGlite**, designed to 
 
 ## 🚀 Live Demo
 
-[👉 View Deployed App on Vercel]([(https://med-block-registry.vercel.app/)])
+[👉 View Deployed App on Vercel](https://med-block-registry.vercel.app/)]
 
 ---
 
