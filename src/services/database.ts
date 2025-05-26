@@ -23,18 +23,51 @@ export interface Patient {
 class DatabaseService {
   private db: PGlite | null = null;
   private isInitialized = false;
+  private initializationAttempts = 0;
+  private maxAttempts = 3;
 
   async init() {
     if (this.isInitialized) return;
     
+    this.initializationAttempts++;
+    console.log(`Database initialization attempt ${this.initializationAttempts}/${this.maxAttempts}`);
+    
     try {
-      this.db = new PGlite('idb://patient-registration-db');
+      // Clear any existing database instance
+      if (this.db) {
+        try {
+          await this.db.close();
+        } catch (e) {
+          console.log('Error closing existing db:', e);
+        }
+        this.db = null;
+      }
+
+      // Try different database names for each attempt to avoid cache issues
+      const dbName = `patient-registration-db-v${this.initializationAttempts}`;
+      console.log(`Initializing database with name: ${dbName}`);
+      
+      this.db = new PGlite(`idb://${dbName}`);
+      
+      // Test the connection
+      await this.db.query('SELECT 1');
+      console.log('Database connection test successful');
+      
       await this.createTables();
       this.isInitialized = true;
       console.log('Database initialized successfully');
     } catch (error) {
-      console.error('Failed to initialize database:', error);
-      throw error;
+      console.error(`Database initialization attempt ${this.initializationAttempts} failed:`, error);
+      
+      if (this.initializationAttempts < this.maxAttempts) {
+        console.log('Retrying database initialization...');
+        // Wait a bit before retrying
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return this.init();
+      } else {
+        console.error('All database initialization attempts failed');
+        throw new Error(`Failed to initialize database after ${this.maxAttempts} attempts. Please refresh the page and try again.`);
+      }
     }
   }
 
@@ -63,9 +96,17 @@ class DatabaseService {
     `;
 
     await this.db.exec(createPatientsTable);
+    console.log('Database tables created successfully');
+  }
+
+  private async ensureInitialized() {
+    if (!this.isInitialized) {
+      await this.init();
+    }
   }
 
   async addPatient(patient: Omit<Patient, 'id' | 'created_at' | 'updated_at'>) {
+    await this.ensureInitialized();
     if (!this.db) throw new Error('Database not initialized');
 
     const query = `
@@ -97,6 +138,7 @@ class DatabaseService {
   }
 
   async getAllPatients(): Promise<Patient[]> {
+    await this.ensureInitialized();
     if (!this.db) throw new Error('Database not initialized');
     
     const result = await this.db.query('SELECT * FROM patients ORDER BY created_at DESC');
@@ -104,6 +146,7 @@ class DatabaseService {
   }
 
   async getPatientById(id: number): Promise<Patient | null> {
+    await this.ensureInitialized();
     if (!this.db) throw new Error('Database not initialized');
     
     const result = await this.db.query('SELECT * FROM patients WHERE id = $1', [id]);
@@ -111,6 +154,7 @@ class DatabaseService {
   }
 
   async searchPatients(searchTerm: string): Promise<Patient[]> {
+    await this.ensureInitialized();
     if (!this.db) throw new Error('Database not initialized');
     
     const query = `
@@ -127,6 +171,7 @@ class DatabaseService {
   }
 
   async executeRawQuery(query: string) {
+    await this.ensureInitialized();
     if (!this.db) throw new Error('Database not initialized');
     
     try {
@@ -146,6 +191,24 @@ class DatabaseService {
         fields: []
       };
     }
+  }
+
+  // Method to reset the database if needed
+  async reset() {
+    console.log('Resetting database...');
+    this.isInitialized = false;
+    this.initializationAttempts = 0;
+    
+    if (this.db) {
+      try {
+        await this.db.close();
+      } catch (e) {
+        console.log('Error closing db during reset:', e);
+      }
+      this.db = null;
+    }
+    
+    await this.init();
   }
 }
 
