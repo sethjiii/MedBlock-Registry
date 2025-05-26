@@ -1,57 +1,85 @@
-**Use your preferred IDE**
+# MedBlock Registry
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+A **frontend-only** patient registration app powered by **PGlite**, designed to register, query, and manage patient records entirely in the browser — with support for **SQL queries**, **data persistence**, and **multi-tab synchronization**.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🚀 Live Demo
 
-Follow these steps:
+[👉 View Deployed App on Vercel](https://your-vercel-deployment-url.vercel.app)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+---
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 📌 Task Overview
 
-# Step 3: Install the necessary dependencies.
-npm i
+This project was developed as a solution for the following requirements:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+- [x] Build a **frontend-only** patient registration app using **PGlite**.
+- [x] Allow users to:
+  - Register new patients
+  - Run raw SQL queries to retrieve patient data
+- [x] Ensure patient data is:
+  - **Persisted across page refreshes**
+  - **Synchronized across multiple browser tabs**
+- [x] Each feature was committed separately with clear git history.
+- [x] This repository contains **setup & usage instructions**.
+- [x] Project is **deployed publicly** via [Vercel](https://vercel.com) or [Netlify](https://netlify.com).
+- [x] Development challenges are documented below.
+
+---
+
+## 🧠 Features
+
+- ✅ Register new patient details via form
+- ✅ Search patients with raw SQL input
+- ✅ Data persistence using [`idb://` PGlite backend](https://electric-sql.com/docs/pglite)
+- ✅ Real-time sync between browser tabs
+- ✅ Modular and clean codebase
+- ✅ Modern React + Vite setup
+
+---
+
+## 📦 Tech Stack
+
+- [React](https://reactjs.org/)
+- [Vite](https://vitejs.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [PGlite](https://electric-sql.com/docs/pglite) (in-browser PostgreSQL)
+- [Tailwind CSS](https://tailwindcss.com/) (optional, if used)
+- [Vercel](https://vercel.com/) for deployment
+
+---
+
+## 🛠️ Getting Started
+
+### Prerequisites
+
+- Node.js ≥ 18
+- Git
+
+### Clone the Repo
+
+```
+git clone https://github.com/sethjiii/MedBlock-Registry.git
+cd MedBlock-Registry
 ```
 
-**Edit a file directly in GitHub**
+⚠️ Challenges Faced
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- PGlite browser bundling errors:
+  Encountered Invalid FS bundle size issue during setup. Solved it by:
 
-**Use GitHub Codespaces**
+- Adding this to vite.config.js:
+```
+optimizeDeps: { exclude: ['@electric-sql/pglite'] },
+worker: { format: 'es' },
+```
+- Ensured all imports were using ESM-compatible format.
+- Cross-tab sync:
+  PGlite automatically supports synchronization when using the same idb:// URL, but we had to ensure a singleton DB instance across the app.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/46516f8f-7978-41c4-9e23-a024e6856c94) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- Folder Structure
+  src/
+├── components/       # React components
+├── db/               # PGlite integration logic
+├── pages/            # Main app views
+├── utils/            # Helpers
+└── main.tsx          # App entry
